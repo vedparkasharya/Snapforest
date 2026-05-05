@@ -76,12 +76,6 @@ body {
   100% { transform: scale(2.2); opacity: 0; }
 }
 
-@keyframes touch-glow {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-  50% { transform: scale(1.05); box-shadow: 0 0 30px 10px rgba(16, 185, 129, 0.4); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
 @keyframes bounce-soft {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
@@ -115,10 +109,6 @@ body {
 
 .animate-ring-pulse {
   animation: ring-pulse 1.5s ease-out infinite;
-}
-
-.animate-touch-glow {
-  animation: touch-glow 0.6s ease-out;
 }
 
 .animate-bounce-soft {
@@ -155,5 +145,8 @@ body {
 .stagger-children > *:nth-child(5) { animation-delay: 400ms; }
 .stagger-children > *:nth-child(6) { animation-delay: 500ms; }
 .stagger-children > *:nth-child(7) { animation-delay: 600ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 700ms; }
+
+children > *:nth-child(7) { animation-delay: 600ms; }
 .stagger-children > *:nth-child(8) { animation-delay: 700ms; }
 

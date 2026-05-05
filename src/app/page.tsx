@@ -62,7 +62,7 @@ const features = [
   { icon: Sparkles, title: "Premium Equipment", desc: "Top-tier gear for professional results" },
 ];
 
-/* ──────────── Particle Network Background ──────────── */
+/* ──────────── Particle Network Background (Mouse-attracted) ──────────── */
 function ParticleNetwork() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -77,7 +77,7 @@ function ParticleNetwork() {
     let animationId: number;
 
     const particles: { x: number; y: number; vx: number; vy: number }[] = [];
-    const particleCount = 50;
+    const particleCount = 55;
     const connectionDistance = 180;
 
     for (let i = 0; i < particleCount; i++) {
@@ -88,6 +88,21 @@ function ParticleNetwork() {
         vy: (Math.random() - 0.5) * 0.6,
       });
     }
+
+    // Mouse position for attraction
+    const mouse = { x: -1000, y: -1000 };
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    };
+    const handleMouseLeave = () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    };
+
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("mouseleave", handleMouseLeave);
 
     function animate() {
       if (!ctx) return;
@@ -100,6 +115,21 @@ function ParticleNetwork() {
 
         if (p.x < 0 || p.x > w) p.vx *= -1;
         if (p.y < 0 || p.y > h) p.vy *= -1;
+
+        // Attract toward mouse when nearby (lines converge at cursor)
+        const dxMouse = mouse.x - p.x;
+        const dyMouse = mouse.y - p.y;
+        const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+        const attractRadius = 200;
+        if (distMouse < attractRadius) {
+          const force = (1 - distMouse / attractRadius) * 0.03;
+          p.vx += dxMouse * force;
+          p.vy += dyMouse * force;
+        }
+
+        // Friction to keep speeds reasonable
+        p.vx *= 0.98;
+        p.vy *= 0.98;
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
@@ -137,77 +167,67 @@ function ParticleNetwork() {
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener("resize", handleResize);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
 
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ opacity: 0.7 }} />;
 }
 
-/* ──────────── Glow Cursor Effect ──────────── */
+/* ──────────── Mouse Spotlight Effect ──────────── */
 function GlowCursor() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const points = useRef<{ x: number; y: number; life: number }[]>([]);
+  const spotlightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const spot = spotlightRef.current;
+    if (!spot) return;
 
-    let w = (canvas.width = window.innerWidth);
-    let h = (canvas.height = window.innerHeight);
-    let animId: number;
+    let raf = 0;
+    let targetX = -500;
+    let targetY = -500;
+    let currentX = -500;
+    let currentY = -500;
 
-    const handleMove = (e: MouseEvent | TouchEvent) => {
-      const x = "touches" in e ? e.touches[0].clientX : e.clientX;
-      const y = "touches" in e ? e.touches[0].clientY : e.clientY;
-      points.current.push({ x, y, life: 1 });
-      if (points.current.length > 40) points.current.shift();
+    const handleMove = (e: MouseEvent) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
     };
 
-    function animate() {
-      if (!ctx) return;
-      ctx.clearRect(0, 0, w, h);
+    const handleLeave = () => {
+      targetX = -500;
+      targetY = -500;
+    };
 
-      points.current.forEach((p) => {
-        p.life -= 0.015;
-        if (p.life <= 0) return;
+    function tick() {
+      const el = spotlightRef.current;
+      if (!el) return;
+      // Smooth lerp toward target
+      currentX += (targetX - currentX) * 0.12;
+      currentY += (targetY - currentY) * 0.12;
 
-        const radius = 20 + (1 - p.life) * 30;
-        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius);
-        gradient.addColorStop(0, `rgba(16, 185, 129, ${p.life * 0.4})`);
-        gradient.addColorStop(0.4, `rgba(16, 185, 129, ${p.life * 0.15})`);
-        gradient.addColorStop(1, "rgba(16, 185, 129, 0)");
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-        ctx.fillStyle = gradient;
-        ctx.fill();
-      });
-
-      points.current = points.current.filter((p) => p.life > 0);
-      animId = requestAnimationFrame(animate);
+      el.style.background = `radial-gradient(600px circle at ${currentX}px ${currentY}px, rgba(16, 185, 129, 0.08), transparent 60%)`;
+      raf = requestAnimationFrame(tick);
     }
 
-    animate();
     window.addEventListener("mousemove", handleMove);
-    window.addEventListener("touchmove", handleMove, { passive: true });
-
-    const handleResize = () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    };
-    window.addEventListener("resize", handleResize);
+    document.body.addEventListener("mouseleave", handleLeave);
+    raf = requestAnimationFrame(tick);
 
     return () => {
-      cancelAnimationFrame(animId);
+      cancelAnimationFrame(raf);
       window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("touchmove", handleMove);
-      window.removeEventListener("resize", handleResize);
+      document.body.removeEventListener("mouseleave", handleLeave);
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[9998]" />;
+  return (
+    <div
+      ref={spotlightRef}
+      className="fixed inset-0 w-full h-full pointer-events-none z-[9998]"
+      style={{ background: "radial-gradient(600px circle at -500px -500px, rgba(16, 185, 129, 0.08), transparent 60%)" }}
+    />
+  );
 }
 
 /* ──────────── Booking Notification Toast ──────────── */
@@ -228,8 +248,9 @@ function BookingNotifications() {
       setTimeout(() => setToast(null), 4000);
     };
 
-    const interval = setInterval(showRandomToast, 20000);
-    const firstTimeout = setTimeout(showRandomToast, 5000);
+    // Reduced frequency: every 2 minutes instead of every 20 seconds
+    const interval = setInterval(showRandomToast, 120000);
+    const firstTimeout = setTimeout(showRandomToast, 30000);
 
     return () => {
       clearInterval(interval);
@@ -264,14 +285,37 @@ function BookingNotifications() {
   );
 }
 
-/* ──────────── App Download Popup ──────────── */
+/* ──────────── App Download Popup (PWA-aware) ──────────── */
 function AppDownloadPopup() {
   const [isOpen, setIsOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsOpen(true), 8000);
-    return () => clearTimeout(timer);
+
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+    };
   }, []);
+
+  const handleInstall = useCallback(async () => {
+    if (!deferredPrompt) return;
+    const promptEvent = deferredPrompt as any;
+    promptEvent.prompt();
+    const { outcome } = await promptEvent.userChoice;
+    if (outcome === "accepted") {
+      setIsOpen(false);
+    }
+    setDeferredPrompt(null);
+  }, [deferredPrompt]);
 
   return (
     <AnimatePresence>
@@ -307,16 +351,34 @@ function AppDownloadPopup() {
               <p className="text-gray-400 mb-6">
                 Book studios, manage appointments & get exclusive discounts on the go!
               </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+
+              {deferredPrompt ? (
+                <button
+                  onClick={handleInstall}
+                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2 active:scale-95"
+                >
                   <Download className="w-5 h-5" />
-                  App Store
+                  Install App
                 </button>
-                <button className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 text-black rounded-xl font-semibold hover:bg-emerald-600 transition-colors">
-                  <Download className="w-5 h-5" />
-                  Play Store
-                </button>
-              </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-semibold hover:bg-gray-100 transition-colors"
+                  >
+                    <Download className="w-5 h-5" />
+                    App Store
+                  </button>
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 text-black rounded-xl font-semibold hover:bg-emerald-600 transition-colors"
+                  >
+                    <Download className="w-5 h-5" />
+                    Play Store
+                  </button>
+                </div>
+              )}
+
               <div className="mt-6 pt-4 border-t border-white/10">
                 <div className="flex items-center justify-center gap-2">
                   <QrCode className="w-4 h-4 text-emerald-400" />
@@ -380,7 +442,7 @@ function RoomSlider() {
                   <span className="text-emerald-400 font-bold text-base sm:text-lg">{featuredRooms[current].price}</span>
                   <Link
                     href="/booking"
-                    className="px-5 sm:px-6 py-2.5 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl transition-all flex items-center gap-2 text-sm sm:text-base active:scale-95 touch-glow"
+                    className="px-5 sm:px-6 py-2.5 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl transition-all flex items-center gap-2 text-sm sm:text-base active:scale-95"
                   >
                     <CalendarCheck className="w-4 h-4" />
                     Book Now
@@ -659,7 +721,7 @@ export default function Home() {
 
   return (
     <>
-      {/* Magic Effects */}
+      {/* Magic Effects — mouse-following, NOT scroll-triggered */}
       <GlowCursor />
       <ConfettiEffect trigger={showConfetti} />
 
@@ -696,7 +758,7 @@ export default function Home() {
                 <Link
                   href="/booking"
                   onClick={triggerCelebration}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl transition-all hover:scale-105 active:scale-95 text-lg touch-glow"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl transition-all hover:scale-105 active:scale-95 text-lg"
                 >
                   <CalendarCheck className="w-5 h-5" />
                   Book Your Room Now
@@ -704,7 +766,7 @@ export default function Home() {
                 </Link>
                 <Link
                   href="/spaces"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl border border-white/10 transition-all active:scale-95 touch-glow"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl border border-white/10 transition-all active:scale-95"
                 >
                   <MousePointer2 className="w-5 h-5" />
                   Explore Spaces
@@ -1017,6 +1079,12 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* App Download Popup */}
+      <AppDownloadPopup />
+
+      {/* Booking Toast Notifications */}
+      <BookingNotifications />
     </>
   );
 }

@@ -46,9 +46,14 @@ export default function SurpriseBooking() {
     setModal({ name, room, offer, timeAgo });
   }, []);
 
+  /**
+   * Show first popup after 1 minute, then repeat every 2 minutes.
+   * Previous values were 12s and 20s — changed to 60s and 120s
+   * per user request to reduce intrusiveness.
+   */
   useEffect(() => {
-    const firstTimeout = setTimeout(showSurprise, 12000);
-    const interval = setInterval(showSurprise, 20000);
+    const firstTimeout = setTimeout(showSurprise, 60000);   // 1 min
+    const interval = setInterval(showSurprise, 120000);     // 2 min
     return () => {
       clearTimeout(firstTimeout);
       clearInterval(interval);
@@ -127,7 +132,7 @@ export default function SurpriseBooking() {
                 <Link
                   href="/booking"
                   onClick={() => setModal(null)}
-                  className="inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-black font-bold rounded-xl transition-all active:scale-95 touch-glow"
+                  className="inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-black font-bold rounded-xl transition-all active:scale-95"
                 >
                   <CalendarCheck className="w-5 h-5" />
                   Book Now

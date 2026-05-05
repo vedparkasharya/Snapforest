@@ -29,6 +29,7 @@ export const metadata: Metadata = {
     apple: "/images/snapforest-logo.png",
     shortcut: "/images/snapforest-logo.png",
   },
+  manifest: "/manifest.json",
   openGraph: {
     title: "Snapforest – Book Premium Creator Studios in Gaya",
     description: "Book professional podcast rooms, YouTube studios, gaming rooms & more in Gaya. India's premier creator space platform.",

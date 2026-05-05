@@ -1,0 +1,25 @@
+{
+  "name": "Snapforest",
+  "short_name": "Snapforest",
+  "description": "Book Premium Creator Studios in Gaya - Podcast rooms, YouTube studios, gaming rooms & more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#10b981",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/images/snapforest-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/snapforest-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
