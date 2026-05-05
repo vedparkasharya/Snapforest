@@ -351,7 +351,7 @@ function RoomSlider() {
 
   return (
     <div className="relative">
-      <div className="overflow-hidden rounded-3xl">
+      <div className="overflow-hidden rounded-3xl border border-white/10">
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
@@ -359,7 +359,7 @@ function RoomSlider() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.5 }}
-            className="relative aspect-[16/9] md:aspect-[21/9]"
+            className="relative aspect-[4/5] sm:aspect-[16/9] md:aspect-[21/9]"
           >
             <Image
               src={featuredRooms[current].image}
@@ -368,19 +368,19 @@ function RoomSlider() {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/20" />
+            <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8 md:p-10">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                <span className="inline-block px-3 py-1 bg-emerald-500 text-black text-xs font-bold rounded-full mb-3">
+                <span className="inline-block px-3 py-1.5 bg-emerald-500 text-black text-xs font-bold rounded-full mb-3">
                   FEATURED SPACE
                 </span>
-                <h3 className="text-2xl md:text-4xl font-bold text-white mb-2">{featuredRooms[current].title}</h3>
-                <p className="text-gray-300 mb-4 max-w-xl">{featuredRooms[current].description}</p>
-                <div className="flex flex-wrap items-center gap-4">
-                  <span className="text-emerald-400 font-bold text-lg">{featuredRooms[current].price}</span>
+                <h3 className="text-xl sm:text-2xl md:text-4xl font-bold text-white mb-2 leading-tight">{featuredRooms[current].title}</h3>
+                <p className="text-gray-300 text-sm sm:text-base mb-4 max-w-xl line-clamp-2 sm:line-clamp-none">{featuredRooms[current].description}</p>
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                  <span className="text-emerald-400 font-bold text-base sm:text-lg">{featuredRooms[current].price}</span>
                   <Link
                     href="/booking"
-                    className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl transition-all flex items-center gap-2"
+                    className="px-5 sm:px-6 py-2.5 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl transition-all flex items-center gap-2 text-sm sm:text-base active:scale-95 touch-glow"
                   >
                     <CalendarCheck className="w-4 h-4" />
                     Book Now

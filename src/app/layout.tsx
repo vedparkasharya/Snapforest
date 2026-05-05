@@ -24,11 +24,32 @@ export const metadata: Metadata = {
     "Snapforest",
     "book studio Gaya",
   ],
+  icons: {
+    icon: "/images/snapforest-logo.png",
+    apple: "/images/snapforest-logo.png",
+    shortcut: "/images/snapforest-logo.png",
+  },
   openGraph: {
     title: "Snapforest – Book Premium Creator Studios in Gaya",
-    description: "Book professional podcast rooms, YouTube studios, gaming rooms & more in Gaya.",
+    description: "Book professional podcast rooms, YouTube studios, gaming rooms & more in Gaya. India's premier creator space platform.",
     url: "https://www.snapforest.in/",
+    siteName: "Snapforest",
     type: "website",
+    locale: "en_IN",
+    images: [
+      {
+        url: "https://www.snapforest.in/images/snapforest-logo.png",
+        width: 1200,
+        height: 1200,
+        alt: "Snapforest - India's Premier Creator Space Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Snapforest – Book Premium Creator Studios in Gaya",
+    description: "Book professional podcast rooms, YouTube studios, gaming rooms & more in Gaya.",
+    images: ["https://www.snapforest.in/images/snapforest-logo.png"],
   },
 };
 
